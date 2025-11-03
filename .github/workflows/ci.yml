@@ -51,7 +51,11 @@ jobs:
         run: |
           mkdir -Force test-reports
           try {
-            Invoke-Pester -Script tests/ps/pester -OutputFormat NUnitXml -OutputFile test-reports/pester-nunit.xml -PassThru | Out-Null
+            $result = Invoke-Pester -Script tests/ps/pester -OutputFormat NUnitXml -OutputFile test-reports/pester-nunit.xml -PassThru
+            if ($result.FailedCount -gt 0) {
+              Write-Error "Pester tests failed: $($result.FailedCount) test(s) failed."
+              exit 1
+            }
           } catch {
             Write-Error "Pester produced an error: $_"
             exit 1
