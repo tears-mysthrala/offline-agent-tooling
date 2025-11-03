@@ -1,43 +1,72 @@
 name: CI
 
 on:
-    push:
-    pull_request:
+  push:
+  pull_request:
 
 jobs:
-    test-windows:
-        runs-on: windows-latest
+  test-windows:
+    runs-on: windows-latest
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Setup Python
-              uses: actions/setup-python@v4
-              with:
-                  python-version: "3.10"
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-            - name: Install Pester (if missing)
-              shell: pwsh
-              run: |
-                  try {
-                    if (-not (Get-Module -ListAvailable -Name Pester)) {
-                      Install-Module -Name Pester -Force -Scope CurrentUser -AllowClobber -ErrorAction Stop
-                    }
-                  } catch {
-                    Write-Host "Failed to install Pester; tests may still pass if provided by the runner. Error: $_"
-                  }
+      - name: Install Pester (if missing)
+        shell: pwsh
+        run: |
+          try {
+            if (-not (Get-Module -ListAvailable -Name Pester)) {
+              Install-Module -Name Pester -Force -Scope CurrentUser -AllowClobber -ErrorAction Stop
+            }
+          } catch {
+            Write-Host "Failed to install Pester; tests may still pass if provided by the runner. Error: $_"
+          }
 
-            - name: Run tests via command-runner
-              shell: pwsh
-              run: |
-                  # Use the command-runner to execute the curated tests file (use -Tests to let the runner pick the tests file)
-                  Write-Host "Running tests via scripts/command-runner.ps1 -Tests"
-                  pwsh -NoProfile -NonInteractive -File scripts/command-runner.ps1 -Tests
+      - name: Run tests via command-runner
+        shell: pwsh
+        run: |
+          # Use the command-runner to execute the curated tests file (use -Tests to let the runner pick the tests file)
+          Write-Host "Running tests via scripts/command-runner.ps1 -Tests"
+          pwsh -NoProfile -NonInteractive -File scripts/command-runner.ps1 -Tests
 
-            - name: Upload runner logs
-              if: always()
-              uses: actions/upload-artifact@v4
-              with:
-                name: runner-logs
-                path: logs/*.log
+      - name: Install Python test reporter
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+
+      - name: Generate Python JUnit XML
+        run: |
+          mkdir -Force test-reports
+          pytest tests/python --junitxml=test-reports/python-junit.xml
+        continue-on-error: false
+
+      - name: Generate Pester NUnit XML
+        shell: pwsh
+        run: |
+          mkdir -Force test-reports
+          try {
+            Invoke-Pester -Script tests/ps/pester -OutputFormat NUnitXml -OutputFile test-reports/pester-nunit.xml -PassThru | Out-Null
+          } catch {
+            Write-Error "Pester produced an error: $_"
+            exit 1
+          }
+
+      - name: Upload runner logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runner-logs
+          path: logs/*.log
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: test-reports/**/*.xml
