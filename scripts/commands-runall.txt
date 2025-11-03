@@ -1,0 +1,2 @@
+# Run the combined test runner (Python + Pester coverage)
+pwsh -File scripts/run-all-tests.ps1
