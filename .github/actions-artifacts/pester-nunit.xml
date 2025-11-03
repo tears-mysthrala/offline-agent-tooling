@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="2" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2025-11-03" time="15:39:54">
+  <environment os-version="10.0.26100" clr-version="8.0.21" nunit-version="2.5.8.0" user-domain="runnervm8crnl" user="runneradmin" platform="Microsoft Windows Server 2025 Datacenter|C:\Windows|\Device\Harddisk0\Partition2" machine-name="runnervm8crnl" cwd="D:\a\offline-agent-tooling\offline-agent-tooling" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="0.8692" asserts="0" description="Pester">
+    <results>
+      <test-suite type="TestFixture" name="D:\a\offline-agent-tooling\offline-agent-tooling\tests\ps\pester\Test-FsSearch.Tests.ps1" executed="True" result="Success" success="True" time="0.8692" asserts="0" description="D:\a\offline-agent-tooling\offline-agent-tooling\tests\ps\pester\Test-FsSearch.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="FS and Search tools (integration)" executed="True" result="Success" success="True" time="0.3854" asserts="0" description="FS and Search tools (integration)">
+            <results>
+              <test-suite type="TestFixture" name="FS and Search tools (integration).FS operations" executed="True" result="Success" success="True" time="0.2468" asserts="0" description="FS and Search tools (integration).FS operations">
+                <results>
+                  <test-case description="writes, reads and appends a file" name="FS and Search tools (integration).FS operations.writes, reads and appends a file" time="0.2136" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="FS and Search tools (integration).Search operations" executed="True" result="Success" success="True" time="0.3667" asserts="0" description="FS and Search tools (integration).Search operations">
+                <results>
+                  <test-case description="finds TODO in fixtures sample.txt" name="FS and Search tools (integration).Search operations.finds TODO in fixtures sample.txt" time="0.1121" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>
