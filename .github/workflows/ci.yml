@@ -34,3 +34,10 @@ jobs:
                   # Use the command-runner to execute the curated tests file
                   Write-Host "Running tests via scripts/command-runner.ps1 -File scripts/commands-tests.txt"
                   pwsh -NoProfile -NonInteractive -File scripts/command-runner.ps1 -File scripts/commands-tests.txt
+
+            - name: Upload runner logs
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                name: runner-logs
+                path: logs/*.log
