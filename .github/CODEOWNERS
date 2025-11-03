@@ -1,7 +1,9 @@
 # Code owners - automatically request review from the repo owner for all changes
+
 * @tears-mysthrala
 
 # Ownership for scripts and tooling
+
 /scripts/ @tears-mysthrala
 /tools/ @tears-mysthrala
 /tests/ @tears-mysthrala
