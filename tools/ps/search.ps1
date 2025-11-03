@@ -4,7 +4,11 @@ param(
   [string]$root = ".",
   [string]$pattern,
   [switch]$is_regex,
+  [string]$include,
+  [string]$exclude,
+  [switch]$recursive,
   [int]$limit = 2000,
+  [switch]$ignore_git,
   [switch]$offline,
   [string]$trace_id
 )
@@ -17,7 +21,24 @@ try {
     'grep' {
       if (-not $pattern) { Write-Json @{ ok=$false; error=@{ code='ARG_MISSING'; message='--pattern requerido' } }; exit 2 }
       if (-not (Test-Path -LiteralPath $root)) { Write-Json @{ ok=$false; error=@{ code='NOT_FOUND'; message="No existe root: $root" } }; exit 3 }
-      $files = Get-ChildItem -LiteralPath $root -Recurse -File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+      $incs = @()
+      if ($include) { $incs = $include -split ',' | ForEach-Object { $_.Trim() } }
+      $exs = @()
+      if ($exclude) { $exs = $exclude -split ',' | ForEach-Object { $_.Trim() } }
+      if ($ignore_git) {
+        $gitignore = Join-Path $root '.gitignore'
+        if (Test-Path $gitignore) {
+          $lines = Get-Content -LiteralPath $gitignore | ForEach-Object { $_.Trim() } | Where-Object { $_ -and -not ($_ -like '#*') }
+          foreach ($l in $lines) { $exs += $l }
+        }
+      }
+
+      $gciParams = @{ Path = $root; File = $true; ErrorAction = 'SilentlyContinue' }
+      if ($recursive) { $gciParams['Recurse'] = $true }
+      if ($incs.Count -gt 0) { $gciParams['Include'] = $incs }
+      if ($exs.Count -gt 0) { $gciParams['Exclude'] = $exs }
+
+      $files = Get-ChildItem @gciParams | Select-Object -ExpandProperty FullName
       $opts = @{ Pattern = $pattern; AllMatches = $true; Encoding = 'utf8' }
       if ($is_regex) { $opts['SimpleMatch'] = $false } else { $opts['SimpleMatch'] = $true }
       $res = @()

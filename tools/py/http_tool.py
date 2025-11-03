@@ -1,24 +1,10 @@
 #!/usr/bin/env python3
 import argparse
-import json
-import os
-import sys
-from pathlib import Path
-import hashlib
-import urllib.request
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-FIXTURES = REPO_ROOT / "fixtures" / "http"
-CACHE_DIR = REPO_ROOT / ".cache" / "http"
-
-#!/usr/bin/env python3
-import argparse
 import hashlib
 import json
 import sys
 import urllib.request
 from pathlib import Path
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = REPO_ROOT / "fixtures" / "http"
@@ -90,7 +76,7 @@ def main():
 
     try:
         if args.op == "ping":
-            write_json({"ok": True, "data": {"pong": True, "tool": "http.py"}})
+            write_json({"ok": True, "data": {"pong": True, "tool": "http_tool.py"}})
             return 0
 
         if args.op in ("get", "post", "put", "delete", "head"):
