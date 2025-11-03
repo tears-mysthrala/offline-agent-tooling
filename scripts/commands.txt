@@ -1,18 +1,26 @@
-# Test queue: mix of successful and failing PowerShell commands
-# Run these to exercise `scripts/command-runner.ps1` behavior. After testing, archive or clear this file.
+# ================================
+# AGENT TOOLS: MVP smoke tests
+# Each command below exercises a newly added local tool.
+# These should be idempotent and safe to run multiple times.
+# ================================
 
-# --- Successful step (should always run)
-Write-Output "TEST: step 1 - ok"
+# FS Tool: write a temp file
+tools\ps\fs.ps1 -op write -path d:\tooling\tmp.txt -content "hola"
 
-# --- Forced failing command: a terminating error (will stop the runner unless -ContinueOnError is used)
-throw "FORCED FAILURE 1"
+# FS Tool: read it back
+tools\ps\fs.ps1 -op read -path d:\tooling\tmp.txt
 
-# --- This should not run when the runner is invoked without -ContinueOnError
-Write-Output "TEST: step 3 - should NOT run when not using -ContinueOnError"
+# Search Tool: grep for TODO across repo
+tools\ps\search.ps1 -op grep -root d:\tooling -pattern "TODO"
 
-# --- Commands to validate ContinueOnError behavior
-Write-Output "CONTINUE-TEST: step 1 - ok"
-throw "FORCED FAILURE 2"
-Write-Output "CONTINUE-TEST: step 3 - should run despite previous failure"
+# Process Runner: run a simple PowerShell output
+tools\ps\process.ps1 -op run -cmd "Write-Output 'runner ok'"
 
-# End of test queue
+# Log Tool: write a JSON log line
+tools\ps\log.ps1 -op log -level info -msg "init via wrapper"
+
+# Adapter: list available PowerShell tools
+tools\ps\adapter.ps1 -op list
+
+# HTTP Tool (Python, offline fixture) - Uncomment if Python is installed and on PATH
+# python tools\py\http.py --op get --offline --fixture-key example-users
