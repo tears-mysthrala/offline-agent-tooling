@@ -1,0 +1,54 @@
+# Git attributes for this LLM/tools project
+# - Normalize text files automatically
+# - Mark large model/checkpoint files to be handled by Git LFS (requires git-lfs installed and enabled)
+# Automatic text normalization
+* text=auto
+# Scripts
+*.sh     text eol=lf
+*.ps1    text eol=crlf
+*.psm1   text eol=crlf
+# Source files
+*.py     text eol=lf
+*.js     text
+*.ts     text
+*.json   text
+*.md     text
+*.yml    text
+*.yaml   text
+# Notebooks
+*.ipynb binary
+# Images / media (binary)
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.mp4    binary
+# Archives and large binaries
+*.zip    filter=lfs diff=lfs merge=lfs -text
+*.7z     filter=lfs diff=lfs merge=lfs -text
+*.tar    filter=lfs diff=lfs merge=lfs -text
+*.tgz    filter=lfs diff=lfs merge=lfs -text
+# Model checkpoints / weights (use Git LFS)
+*.ckpt        filter=lfs diff=lfs merge=lfs -text
+*.pt          filter=lfs diff=lfs merge=lfs -text
+*.pth         filter=lfs diff=lfs merge=lfs -text
+*.safetensors filter=lfs diff=lfs merge=lfs -text
+*.bin         filter=lfs diff=lfs merge=lfs -text
+*.h5          filter=lfs diff=lfs merge=lfs -text
+*.pb          filter=lfs diff=lfs merge=lfs -text
+# Caches / Hugging Face / ML tool caches
+.cache/*      -text
+.huggingface/* -text
+.transformers/* -text
+# Logs archive are binary
+logs/archive/* -text
+# Prevent accidental CRLF normalization for binary globs
+*.ckpt -text
+*.pt   -text
+*.pth  -text
+*.safetensors -text
+# End of .gitattributes
+# Note: after adding these rules, run:
+#   git lfs install
+#   git lfs track "*.pt" "*.ckpt" "*.safetensors" "*.zip" "*.7z"
+# Then commit the .gitattributes file so LFS rules apply to the repo.

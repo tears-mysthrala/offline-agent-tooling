@@ -1,1 +1,18 @@
-# Queue shell commands here. One per line.
+# Test queue: mix of successful and failing PowerShell commands
+# Run these to exercise `scripts/command-runner.ps1` behavior. After testing, archive or clear this file.
+
+# --- Successful step (should always run)
+Write-Output "TEST: step 1 - ok"
+
+# --- Forced failing command: a terminating error (will stop the runner unless -ContinueOnError is used)
+throw "FORCED FAILURE 1"
+
+# --- This should not run when the runner is invoked without -ContinueOnError
+Write-Output "TEST: step 3 - should NOT run when not using -ContinueOnError"
+
+# --- Commands to validate ContinueOnError behavior
+Write-Output "CONTINUE-TEST: step 1 - ok"
+throw "FORCED FAILURE 2"
+Write-Output "CONTINUE-TEST: step 3 - should run despite previous failure"
+
+# End of test queue
