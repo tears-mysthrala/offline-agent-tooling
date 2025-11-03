@@ -31,9 +31,9 @@ jobs:
             - name: Run tests via command-runner
               shell: pwsh
               run: |
-                  # Use the command-runner to execute the curated tests file
-                  Write-Host "Running tests via scripts/command-runner.ps1 -File scripts/commands-tests.txt"
-                  pwsh -NoProfile -NonInteractive -File scripts/command-runner.ps1 -File scripts/commands-tests.txt
+                  # Use the command-runner to execute the curated tests file (use -Tests to let the runner pick the tests file)
+                  Write-Host "Running tests via scripts/command-runner.ps1 -Tests"
+                  pwsh -NoProfile -NonInteractive -File scripts/command-runner.ps1 -Tests
 
             - name: Upload runner logs
               if: always()
