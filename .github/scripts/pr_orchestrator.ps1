@@ -59,6 +59,8 @@ Write-Host "Starting orchestrator: creating branch $BranchName" -ForegroundColor
 
 git checkout -b $BranchName
 
+# Stage all changes (new files, deletions, edits) so the orchestrator includes them in the PR
+git add -A
 # Commit staged changes if any
 $staged = git diff --staged --name-only
 if ($staged) {
