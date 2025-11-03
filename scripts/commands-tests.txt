@@ -1,0 +1,10 @@
+# Run Python unit tests (KV and HTTP)
+python -m unittest tests.python.test_kv_http -v
+
+# Run PowerShell smoke tests
+# Run ad-hoc PowerShell smoke tests (fallback)
+pwsh -File tests/ps/test_fs_search.ps1
+
+# Run Pester tests (preferred for CI). If Pester is not available this will fail;
+# use the ad-hoc PS test as fallback.
+pwsh -Command "Invoke-Pester -Script tests/ps/pester -Output Detailed"

@@ -21,11 +21,25 @@ CREATE TABLE IF NOT EXISTS kv (
 
 
 def write_json(obj):
-    sys.stdout.write(json.dumps(obj, ensure_ascii=False))
+    # single-line JSON output for tooling; include trailing newline
+    sys.stdout.write(json.dumps(obj, ensure_ascii=False) + "\n")
+    sys.stdout.flush()
 
 
 def get_conn():
-    conn = sqlite3.connect(str(DB_PATH))
+    # Use a short timeout and enable WAL for better concurrency
+    conn = sqlite3.connect(str(DB_PATH), timeout=5)
+    try:
+        # Enable WAL journal for concurrent readers/writers
+        conn.execute("PRAGMA journal_mode=WAL;")
+    except Exception:
+        # pragma might fail on some environments; ignore
+        pass
+    try:
+        # Set busy timeout (ms)
+        conn.execute("PRAGMA busy_timeout=5000;")
+    except Exception:
+        pass
     return conn
 
 
@@ -64,6 +78,12 @@ def main():
             expires = None
             if args.ttl:
                 expires = now + args.ttl
+            # Acquire a write lock briefly to avoid races
+            try:
+                cur.execute("BEGIN IMMEDIATE")
+            except Exception:
+                # If cannot begin immediate, proceed; sqlite will serialize
+                pass
             cur.execute(
                 "REPLACE INTO kv (ns,key,value,expires_at) VALUES (?,?,?,?)",
                 (args.ns, args.key, args.value, expires),
@@ -107,21 +127,35 @@ def main():
                 )
                 return 2
             cur.execute("DELETE FROM kv WHERE ns=? AND key=?", (args.ns, args.key))
+            deleted = cur.rowcount if hasattr(cur, "rowcount") else None
             conn.commit()
-            write_json({"ok": True, "data": {"deleted": True}})
+            write_json(
+                {"ok": True, "data": {"deleted": True, "rows_affected": deleted}}
+            )
             return 0
         if args.op == "keys":
-            cur.execute("SELECT key FROM kv WHERE ns=?", (args.ns,))
-            rows = [r[0] for r in cur.fetchall()]
+            # Return only non-expired keys
+            cur.execute("SELECT key,expires_at FROM kv WHERE ns=?", (args.ns,))
+            rows = []
+            for key, expires in cur.fetchall():
+                if expires and expires < now:
+                    # lazily remove expired
+                    cur.execute("DELETE FROM kv WHERE ns=? AND key=?", (args.ns, key))
+                    continue
+                rows.append(key)
+            conn.commit()
             write_json({"ok": True, "data": {"keys": rows}})
             return 0
         if args.op == "purge-expired":
             cur.execute(
                 "DELETE FROM kv WHERE expires_at IS NOT NULL AND expires_at<?", (now,)
             )
-            deleted = conn.total_changes
+            deleted = cur.rowcount if hasattr(cur, "rowcount") else None
             conn.commit()
             write_json({"ok": True, "data": {"purged": deleted}})
+            return 0
+        if args.op == "ping":
+            write_json({"ok": True, "data": {"ping": True}})
             return 0
         write_json(
             {
