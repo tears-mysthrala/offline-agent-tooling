@@ -1,9 +1,28 @@
 param(
-    [switch]$ContinueOnError
+    [switch]$ContinueOnError,
+    [switch]$Tests,
+    [string]$File
 )
 
 $workspaceRoot = Split-Path -Path $PSScriptRoot -Parent
 $commandsPath = Join-Path -Path $PSScriptRoot -ChildPath "commands.txt"
+
+# If -Tests was provided, run the dedicated tests commands file unless a custom -File is given
+if ($Tests) {
+    if ($File) {
+        # allow explicit file path
+        $commandsPath = $File
+    } else {
+        $commandsPath = Join-Path -Path $PSScriptRoot -ChildPath "commands-tests.txt"
+    }
+} elseif ($File) {
+    # If only -File is provided, use it (allow relative to scripts folder)
+    if ([System.IO.Path]::IsPathRooted($File)) {
+        $commandsPath = $File
+    } else {
+        $commandsPath = Join-Path -Path $PSScriptRoot -ChildPath $File
+    }
+}
 $logsPath = Join-Path -Path $workspaceRoot -ChildPath "logs"
 
 if (-not (Test-Path -Path $commandsPath)) {

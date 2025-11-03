@@ -1,0 +1,36 @@
+name: CI
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    test-windows:
+        runs-on: windows-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.10"
+
+            - name: Install Pester (if missing)
+              shell: pwsh
+              run: |
+                  try {
+                    if (-not (Get-Module -ListAvailable -Name Pester)) {
+                      Install-Module -Name Pester -Force -Scope CurrentUser -AllowClobber -ErrorAction Stop
+                    }
+                  } catch {
+                    Write-Host "Failed to install Pester; tests may still pass if provided by the runner. Error: $_"
+                  }
+
+            - name: Run tests via command-runner
+              shell: pwsh
+              run: |
+                  # Use the command-runner to execute the curated tests file
+                  Write-Host "Running tests via scripts/command-runner.ps1 -File scripts/commands-tests.txt"
+                  pwsh -NoProfile -NonInteractive -File scripts/command-runner.ps1 -File scripts/commands-tests.txt
