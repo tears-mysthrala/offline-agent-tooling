@@ -163,7 +163,8 @@ try {
       $help = @(
         'fs.ps1 --op ping',
         'fs.ps1 --op write --path <ruta> --content <texto> [--encoding utf8|utf16] [--dry-run]',
-        'fs.ps1 --op read --path <ruta>'
+        'fs.ps1 --op read --path <ruta>',
+        'fs.ps1 --op checksum --path <ruta>'
       )
       Write-Json @{ ok=$false; error=@{ code='USAGE'; message='Operación no soportada'; details=$help } }
       exit 1

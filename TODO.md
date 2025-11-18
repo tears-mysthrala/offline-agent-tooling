@@ -13,6 +13,15 @@ Nota de entorno: Este repo usa un wrapper de comandos. Para ejecutar colas de co
 1) Añade líneas en `scripts/commands.txt`
 2) Ejecuta: `pwsh -File scripts/command-runner.ps1`
 
+## Estado de Implementación (Actualizado)
+
+✅ **MVP Complete (7/7)**: FS Tool, Process Runner, Search, Log, HTTP/MOCK, Config, Tool Adapter  
+✅ **Plus Complete (5/5)**: Cache, Git, Template, Archive, KV Store  
+📝 **Pendiente**: Herramientas avanzadas (Scheduler, AST Parser, Diff/Patch, Formatter, Secrets)
+
+**Documentación**: Ver [README.md](./README.md) y [USAGE.md](./USAGE.md) para ejemplos de uso.
+
+
 ## Principios de diseño
 
 - Local-first: todo debe funcionar sin red; si hay funcionalidades que normalmente usan red, proveer mocks/fixtures y banderas `--offline`.

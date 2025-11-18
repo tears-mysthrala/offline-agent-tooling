@@ -9,18 +9,12 @@ __pycache__/
 *$py.class
 .Python
 env/
-.env
 .venv/
 venv/
 pip-wheel-metadata/
 *.egg-info/
 dist/
 build/
-
-# Virtual environment folders
-.venv/
-env/
-venv/
 
 # Pytest
 .pytest_cache/
@@ -57,56 +51,28 @@ pnpm-debug.log*
 dist/
 build/
 
-# Machine learning / LLM artifacts
-# Model checkpoints, weights and large artifacts
-*.ckpt
-*.pth
-*.pt
-*.bin
-*.safetensors
-*.ckpt.index
-*.h5
-*.pb
-
-# Hugging Face / cache
-.cache/huggingface/
-.cache/hub/
-.cache/torch/
-.cache/
-transformers_cache/
-hf_data/
-
-# Datasets / artifacts
-data/
-datasets/
-outputs/
-results/
-checkpoints/
-model_weights/
-
-# ML experiment logs
-wandb/
-mlruns/
-tensorboard/
-tb_logs/
+# Tool runtime data
+.data/          # KV store and runtime databases
+.cache/         # HTTP cache and general cache (except test fixtures)
+!fixtures/      # Keep test fixtures
 
 # Secrets and credentials
-.env*
+.env
+!fixtures/**/.env*  # Allow .env fixtures for testing
 *.key
 *.pem
 secrets.json
 credentials
 
-# Large binary files (LFS-managed) - keep sources out of repo
+# Large binary files
 *.tar
 *.zip
 *.tgz
 
-# Archives/archives created by the runner
+# Archives created by command runner
 logs/archive/*.zip
 
 # Misc
-.cache/
 __MACOSX/
 
 # Keep repository metadata and config
