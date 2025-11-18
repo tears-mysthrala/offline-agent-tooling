@@ -26,6 +26,40 @@ def main():
     args = parser.parse_args()
     
     try:
+        if args.op == 'help' or args.op == '--help':
+            help_text = """
+Template Tool - Simple variable substitution using ${variable} syntax
+
+USAGE:
+  python template.py --op <operation> [options]
+
+OPERATIONS:
+  ping                      Health check
+  render                    Render template with variables
+
+OPTIONS:
+  --template STRING         Template with ${variable} placeholders
+  --vars JSON               JSON object with variable values
+  --safe                    Use safe mode (keep undefined vars as-is)
+  --trace-id ID             Trace ID for logging
+
+EXAMPLES:
+  # Simple substitution
+  python template.py --op render --template "Hello ${name}!" --vars '{"name":"World"}'
+  
+  # Multiple variables
+  python template.py --op render --template "User: ${user}, Age: ${age}" --vars '{"user":"Alice","age":"30"}'
+  
+  # Safe mode (missing vars stay as ${var})
+  python template.py --op render --template "Hello ${name}, ${missing}" --vars '{"name":"Bob"}' --safe
+"""
+            print(help_text)
+            return 0
+        
+        if args.op == 'version' or args.op == '--version':
+            write_json({'ok': True, 'data': {'version': '1.0.0', 'tool': 'template.py'}})
+            return 0
+        
         if args.op == 'ping':
             write_json({'ok': True, 'data': {'pong': True, 'tool': 'template.py'}})
             return 0

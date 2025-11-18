@@ -174,6 +174,51 @@ def main():
     args = parser.parse_args()
     
     try:
+        if args.op == 'help' or args.op == '--help':
+            help_text = """
+Cache Tool - Filesystem cache with TTL and automatic expiration
+
+USAGE:
+  python cache.py --op <operation> [options]
+
+OPERATIONS:
+  ping                      Health check
+  put                       Store value in cache
+  get                       Retrieve value from cache
+  del                       Delete cache entry
+  stats                     Get cache statistics
+  clear-expired             Remove expired entries
+  clear-all                 Remove all cache entries
+
+OPTIONS:
+  --key KEY                 Cache key
+  --value VALUE             Value to cache (JSON string)
+  --ttl-s SECONDS           Time-to-live in seconds
+  --trace-id ID             Trace ID for logging
+
+EXAMPLES:
+  # Put value with 60s TTL
+  python cache.py --op put --key session --value '"data"' --ttl-s 60
+  
+  # Get value
+  python cache.py --op get --key session
+  
+  # Delete value
+  python cache.py --op del --key session
+  
+  # Get cache stats
+  python cache.py --op stats
+  
+  # Clear expired entries
+  python cache.py --op clear-expired
+"""
+            print(help_text)
+            return 0
+        
+        if args.op == 'version' or args.op == '--version':
+            write_json({'ok': True, 'data': {'version': '1.0.0', 'tool': 'cache.py'}})
+            return 0
+        
         if args.op == 'ping':
             write_json({'ok': True, 'data': {'pong': True, 'tool': 'cache.py'}})
             return 0

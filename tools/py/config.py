@@ -92,6 +92,45 @@ def main():
     args = parser.parse_args()
     
     try:
+        if args.op == 'help' or args.op == '--help':
+            help_text = """
+Config Tool - Load configuration from .env, JSON, and environment variables
+
+USAGE:
+  python config.py --op <operation> [options]
+
+OPERATIONS:
+  ping                      Health check
+  load                      Load configuration from multiple sources
+
+OPTIONS:
+  --paths PATH1,PATH2       Comma-separated config file paths (.env, .json)
+  --env-prefix PREFIX_      Filter env vars by prefix (e.g., APP_)
+  --overrides '{"k":"v"}'   JSON overrides (highest priority)
+  --trace-id ID             Trace ID for logging
+
+EXAMPLES:
+  # Load .env file
+  python config.py --op load --paths config.env
+  
+  # Load multiple files (merge order: files -> env -> overrides)
+  python config.py --op load --paths base.env,prod.json
+  
+  # Load with env vars prefix
+  python config.py --op load --paths config.env --env-prefix APP_
+  
+  # Load with overrides
+  python config.py --op load --paths config.env --overrides '{"PORT":"8080"}'
+
+NOTE: Keys containing 'password', 'secret', 'token', 'api_key' are auto-redacted
+"""
+            print(help_text)
+            return 0
+        
+        if args.op == 'version' or args.op == '--version':
+            write_json({'ok': True, 'data': {'version': '1.0.0', 'tool': 'config.py'}})
+            return 0
+        
         if args.op == 'ping':
             write_json({'ok': True, 'data': {'pong': True, 'tool': 'config.py'}})
             return 0

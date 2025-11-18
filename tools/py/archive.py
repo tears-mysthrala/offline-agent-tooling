@@ -69,6 +69,41 @@ def main():
     args = parser.parse_args()
     
     try:
+        if args.op == 'help' or args.op == '--help':
+            help_text = """
+Archive Tool - Zip/unzip operations using stdlib zipfile
+
+USAGE:
+  python archive.py --op <operation> [options]
+
+OPERATIONS:
+  ping                      Health check
+  zip                       Create zip archive
+  unzip                     Extract zip archive
+  list                      List archive contents
+
+OPTIONS:
+  --source PATH             Source file or directory
+  --dest PATH               Destination file or directory
+  --trace-id ID             Trace ID for logging
+
+EXAMPLES:
+  # Create zip archive from directory
+  python archive.py --op zip --source mydir --dest archive.zip
+  
+  # Extract zip archive
+  python archive.py --op unzip --source archive.zip --dest output/
+  
+  # List archive contents
+  python archive.py --op list --source archive.zip
+"""
+            print(help_text)
+            return 0
+        
+        if args.op == 'version' or args.op == '--version':
+            write_json({'ok': True, 'data': {'version': '1.0.0', 'tool': 'archive.py'}})
+            return 0
+        
         if args.op == 'ping':
             write_json({'ok': True, 'data': {'pong': True, 'tool': 'archive.py'}})
             return 0
