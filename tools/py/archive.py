@@ -64,6 +64,7 @@ def main():
     parser.add_argument('--op', required=True, help='Operation: zip|unzip|list')
     parser.add_argument('--source', help='Source file or directory')
     parser.add_argument('--dest', help='Destination file or directory')
+    parser.add_argument('--compact', action='store_true', help='Minimal output (for LLMs)')
     parser.add_argument('--trace-id', help='Trace ID for logging')
     
     args = parser.parse_args()
@@ -135,14 +136,17 @@ EXAMPLES:
             success = archive_zip(source, dest)
             
             if success:
-                write_json({
-                    'ok': True,
-                    'data': {
-                        'source': str(source),
-                        'archive': str(dest),
-                        'size': dest.stat().st_size if dest.exists() else 0
-                    }
-                })
+                if args.compact:
+                    write_json({'ok': True, 'data': str(dest)})
+                else:
+                    write_json({
+                        'ok': True,
+                        'data': {
+                            'source': str(source),
+                            'archive': str(dest),
+                            'size': dest.stat().st_size if dest.exists() else 0
+                        }
+                    })
                 return 0
             else:
                 write_json({

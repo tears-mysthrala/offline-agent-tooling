@@ -87,6 +87,8 @@ def main():
     parser.add_argument('--paths', help='Comma-separated config file paths')
     parser.add_argument('--env-prefix', help='Environment variable prefix to filter')
     parser.add_argument('--overrides', help='JSON string of override values')
+    parser.add_argument('--compact', action='store_true', help='Minimal output (for LLMs)')
+    parser.add_argument('--quiet', action='store_true', help='Suppress non-essential fields')
     parser.add_argument('--trace-id', help='Trace ID for logging')
     
     args = parser.parse_args()
@@ -186,14 +188,20 @@ NOTE: Keys containing 'password', 'secret', 'token', 'api_key' are auto-redacted
                 else:
                     redacted_config[k] = v
             
-            write_json({
-                'ok': True,
-                'data': {
-                    'config': final_config,
-                    'redacted_config': redacted_config,
-                    'count': len(final_config)
-                }
-            })
+            # Compact mode: return just the config
+            if args.compact:
+                write_json({'ok': True, 'data': final_config})
+            elif args.quiet:
+                write_json({'ok': True, 'data': {'config': final_config}})
+            else:
+                write_json({
+                    'ok': True,
+                    'data': {
+                        'config': final_config,
+                        'redacted_config': redacted_config,
+                        'count': len(final_config)
+                    }
+                })
             return 0
         
         write_json({

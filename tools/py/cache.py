@@ -169,6 +169,8 @@ def main():
     parser.add_argument('--key', help='Cache key')
     parser.add_argument('--value', help='Value to cache (JSON string)')
     parser.add_argument('--ttl-s', type=int, help='Time-to-live in seconds')
+    parser.add_argument('--compact', action='store_true', help='Minimal output (for LLMs)')
+    parser.add_argument('--quiet', action='store_true', help='Suppress non-essential fields')
     parser.add_argument('--trace-id', help='Trace ID for logging')
     
     args = parser.parse_args()
@@ -275,14 +277,20 @@ EXAMPLES:
             
             found, value = cache_get(args.key)
             
-            write_json({
-                'ok': True,
-                'data': {
-                    'key': args.key,
-                    'found': found,
-                    'value': value if found else None
-                }
-            })
+            if args.compact:
+                # Compact: return just value or null
+                write_json({'ok': True, 'data': value if found else None})
+            elif args.quiet:
+                write_json({'ok': True, 'data': {'found': found, 'value': value if found else None}})
+            else:
+                write_json({
+                    'ok': True,
+                    'data': {
+                        'key': args.key,
+                        'found': found,
+                        'value': value if found else None
+                    }
+                })
             return 0
         
         if args.op == 'del':
