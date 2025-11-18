@@ -55,6 +55,7 @@ def main():
     parser.add_argument("--key")
     parser.add_argument("--value")
     parser.add_argument("--ttl", type=int)
+    parser.add_argument("--compact", action="store_true", help="Minimal output")
     args = parser.parse_args()
 
     conn = get_conn()

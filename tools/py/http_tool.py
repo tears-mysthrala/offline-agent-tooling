@@ -72,6 +72,7 @@ def main():
     parser.add_argument("--offline", action="store_true")
     parser.add_argument("--fixture-key")
     parser.add_argument("--cache", action="store_true")
+    parser.add_argument("--compact", action="store_true", help="Minimal output")
     parser.add_argument("--trace-id")
     args = parser.parse_args()
 
