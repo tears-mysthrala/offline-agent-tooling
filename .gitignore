@@ -1,79 +1,33 @@
-# Logs and runtime files
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Logs
 logs/
-logs/archive/
 *.log
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.Python
-env/
-.venv/
-venv/
-pip-wheel-metadata/
-*.egg-info/
-dist/
-build/
+# Tool Data
+.data/
+.cache/
 
-# Pytest
-.pytest_cache/
-
-# mypy
-.mypy_cache/
-
-# Coverage
-coverage.xml
-.coverage
-htmlcov/
-
-# pipenv
-Pipfile.lock
-
-# VS Code
-.vscode/
-
-# JetBrains
-.idea/
-
-# OS files
+# OS Files
 .DS_Store
 Thumbs.db
 
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# Editor
+.vscode/
+.idea/
 
-# Build outputs
-dist/
-build/
-
-# Tool runtime data
-.data/          # KV store and runtime databases
-.cache/         # HTTP cache and general cache (except test fixtures)
-!fixtures/      # Keep test fixtures
-
-# Secrets and credentials
+# Secrets
 .env
-!fixtures/**/.env*  # Allow .env fixtures for testing
 *.key
 *.pem
 secrets.json
 credentials
 
-# Large binary files
-*.tar
-*.zip
-*.tgz
-
-# Archives created by command runner
-logs/archive/*.zip
-
-# Misc
-__MACOSX/
-
-# Keep repository metadata and config
-!/.gitignore
+# Test Fixtures (keep these)
+!fixtures/
+!fixtures/**/.env*

@@ -1,154 +1,3 @@
-# Tool Usage Guide
-
-**Detailed examples for every tool.** Copy-paste ready commands for LLM agents.
-
-## Table of Contents
-- [File System (fs.ps1)](#file-system-fsps1)
-- [Process Runner (process.ps1)](#process-runner-processps1)
-- [Search (search.ps1)](#search-searchps1)
-- [Logging (log.ps1)](#logging-logps1)
-- [HTTP/Mock (http_tool.py)](#httpmock-http_toolpy)
-- [Config (config.py)](#config-configpy)
-- [Cache (cache.py)](#cache-cachepy)
-- [Git (git.ps1)](#git-gitps1)
-- [Template (template.py)](#template-templatepy)
-- [Archive (archive.py)](#archive-archivepy)
-- [KV Store (kv.py)](#kv-store-kvpy)
-
----
-
-## File System (fs.ps1)
-
-**Location**: `tools/ps/fs.ps1`
-
-### Read File
-```powershell
-pwsh -File tools/ps/fs.ps1 --op read --path "myfile.txt"
-```
-
-### Write File
-```powershell
-pwsh -File tools/ps/fs.ps1 --op write --path "output.txt" --content "Hello World"
-```
-
-### Append to File
-```powershell
-pwsh -File tools/ps/fs.ps1 --op append --path "log.txt" --content "New line"
-```
-
-### Create Directory
-```powershell
-pwsh -File tools/ps/fs.ps1 --op mkdir --path "newdir"
-```
-
-### Delete (requires --confirm)
-```powershell
-pwsh -File tools/ps/fs.ps1 --op delete --path "file.txt" --confirm
-```
-
-### Get File Stats
-```powershell
-pwsh -File tools/ps/fs.ps1 --op stat --path "file.txt"
-```
-
-### Calculate Checksum (SHA-256)
-```powershell
-pwsh -File tools/ps/fs.ps1 --op checksum --path "file.txt"
-```
-
-### List Files
-```powershell
-pwsh -File tools/ps/fs.ps1 --op list --path "." --recursive
-```
-
-### Glob Pattern Match
-```powershell
-pwsh -File tools/ps/fs.ps1 --op glob --path "." --pattern "*.txt" --recursive
-```
-
-### Read/Write JSON
-```powershell
-# Write JSON
-pwsh -File tools/ps/fs.ps1 --op write-json --path "data.json" --content '{"key":"value"}'
-
-# Read JSON
-pwsh -File tools/ps/fs.ps1 --op read-json --path "data.json"
-```
-
----
-
-## Process Runner (process.ps1)
-
-**Location**: `tools/ps/process.ps1`
-
-### Run Command
-```powershell
-pwsh -File tools/ps/process.ps1 --op run --cmd "echo Hello"
-```
-
-### Run with Timeout
-```powershell
-pwsh -File tools/ps/process.ps1 --op run --cmd "long-running-task" --timeout_ms 5000
-```
-
-### Run in Specific Directory
-```powershell
-pwsh -File tools/ps/process.ps1 --op run --cmd "git status" --cwd "d:\myrepo"
-```
-
----
-
-## Search (search.ps1)
-
-**Location**: `tools/ps/search.ps1`
-
-### Grep for Text
-```powershell
-pwsh -File tools/ps/search.ps1 --op grep --root "." --pattern "TODO"
-```
-
-### Recursive Search
-```powershell
-pwsh -File tools/ps/search.ps1 --op grep --root "." --pattern "FIXME" --recursive
-```
-
-### Regex Search
-```powershell
-pwsh -File tools/ps/search.ps1 --op grep --root "." --pattern "function\s+\w+" --is_regex
-```
-
-### Include/Exclude Patterns
-```powershell
-pwsh -File tools/ps/search.ps1 --op grep --root "." --pattern "test" --include "*.py" --exclude "*.pyc"
-```
-
----
-
-## Logging (log.ps1)
-
-**Location**: `tools/ps/log.ps1`
-
-### Log Message
-```powershell
-pwsh -File tools/ps/log.ps1 --op log --msg "Operation completed" --level info
-```
-
-### Log with Fields
-```powershell
-pwsh -File tools/ps/log.ps1 --op log --msg "User login" --level info --fieldsJson '{"user":"alice"}'
-```
-
-### Log Levels
-```powershell
-# info, warn, error
-pwsh -File tools/ps/log.ps1 --op log --msg "Warning message" --level warn
-```
-
----
-
-## HTTP/Mock (http_tool.py)
-
-**Location**: `tools/py/http_tool.py`
 
 ### Online GET Request
 ```bash
@@ -223,41 +72,36 @@ python tools/py/kv.py --op purge-expired
 1. **Missing `--op` flag** - Always required!
    ```bash
    # ❌ WRONG
-   python tools/py/config.py --paths config.env
+   ./bin/config.exe --paths config.env
    
    # ✅ CORRECT
-   python tools/py/config.py --op load --paths config.env
+   ./bin/config.exe --op load --paths config.env
    ```
 
 2. **Not checking `ok` field**
-   ```python
-   # ❌ WRONG
-   result = run_tool()
-   data = result["data"]  # Will crash if ok=false
+   ```json
+   // ❌ WRONG
+   // Assuming data exists without checking ok
    
-   # ✅ CORRECT
-   result = run_tool()
-   if result["ok"]:
-       data = result["data"]
-   else:
-       print(result["error"]["message"])
+   // ✅ CORRECT
+   // Check if "ok": true before accessing "data"
    ```
 
 3. **Wrong path separators**
    ```bash
    # Use forward slashes or double backslashes on Windows
-   pwsh -File tools/ps/fs.ps1 --op read --path "d:/tooling/file.txt"
+   ./bin/fs.exe --op read --path "d:/tooling/file.txt"
    ```
 
 4. **Forgetting `--confirm` for destructive operations**
    ```bash
-   pwsh -File tools/ps/fs.ps1 --op delete --path "file.txt" --confirm
+   ./bin/fs.exe --op delete --path "file.txt" --confirm
    ```
 
 5. **Not testing tool availability first**
    ```bash
    # Always ping first
-   python tools/py/config.py --op ping
+   ./bin/config.exe --op ping
    # Then use
-   python tools/py/config.py --op load --paths config.env
+   ./bin/config.exe --op load --paths config.env
    ```

@@ -28,9 +28,10 @@ func writeJSON(resp Response) {
 }
 
 func main() {
-	op := flag.String("op", "", "Operation: read|write|delete|mkdir|checksum|stat|list|ping")
+	op := flag.String("op", "", "Operation: read|write|delete|mkdir|checksum|stat|list|glob|write-json|read-json|ping|version")
 	path := flag.String("path", "", "File or directory path")
 	content := flag.String("content", "", "Content to write")
+	pattern := flag.String("pattern", "", "Glob pattern")
 	recursive := flag.Bool("recursive", false, "Recursive operation")
 	confirm := flag.Bool("confirm", false, "Confirm destructive operations")
 	compact := flag.Bool("compact", false, "Minimal output")
@@ -209,8 +210,8 @@ func main() {
 			writeJSON(Response{
 				OK: true,
 				Data: map[string]interface{}{
-					"path":     *path,
-					"checksum": checksum,
+					"path":      *path,
+					"checksum":  checksum,
 					"algorithm": "sha256",
 				},
 			})
@@ -278,6 +279,118 @@ func main() {
 					"path":  *path,
 					"files": files,
 					"count": len(files),
+				},
+			})
+		}
+
+	case "glob":
+		if *path == "" || *pattern == "" {
+			writeJSON(Response{
+				OK:    false,
+				Error: &Error{Code: "ARG_MISSING", Message: "--path and --pattern required"},
+			})
+			os.Exit(2)
+		}
+
+		var files []string
+		filepath.Walk(*path, func(p string, info os.FileInfo, err error) error {
+			if err != nil {
+				return nil
+			}
+			matched, _ := filepath.Match(*pattern, info.Name())
+			if matched {
+				files = append(files, p)
+			}
+			if !*recursive && info.IsDir() && p != *path {
+				return filepath.SkipDir
+			}
+			return nil
+		})
+
+		if *compact {
+			writeJSON(Response{OK: true, Data: files})
+		} else {
+			writeJSON(Response{
+				OK: true,
+				Data: map[string]interface{}{
+					"path":    *path,
+					"pattern": *pattern,
+					"files":   files,
+					"count":   len(files),
+				},
+			})
+		}
+
+	case "write-json":
+		if *path == "" || *content == "" {
+			writeJSON(Response{
+				OK:    false,
+				Error: &Error{Code: "ARG_MISSING", Message: "--path and --content required"},
+			})
+			os.Exit(2)
+		}
+
+		// Validate JSON
+		var js interface{}
+		if json.Unmarshal([]byte(*content), &js) != nil {
+			// If content is not JSON, try to treat it as string and wrap it?
+			// No, fs.ps1 expects content to be JSON string or object.
+			// If it fails, fs.ps1 treats it as raw content.
+			// Let's just write it.
+		}
+
+		// Re-marshal to ensure pretty print or valid JSON
+		data, err := json.MarshalIndent(js, "", "  ")
+		if err != nil {
+			// If not valid JSON, just write content as is
+			data = []byte(*content)
+		}
+
+		if err := ioutil.WriteFile(*path, data, 0644); err != nil {
+			writeJSON(Response{
+				OK:    false,
+				Error: &Error{Code: "WRITE_ERROR", Message: err.Error()},
+			})
+			os.Exit(5)
+		}
+
+		writeJSON(Response{OK: true, Data: map[string]interface{}{"path": *path}})
+
+	case "read-json":
+		if *path == "" {
+			writeJSON(Response{
+				OK:    false,
+				Error: &Error{Code: "ARG_MISSING", Message: "--path required"},
+			})
+			os.Exit(2)
+		}
+
+		data, err := ioutil.ReadFile(*path)
+		if err != nil {
+			writeJSON(Response{
+				OK:    false,
+				Error: &Error{Code: "READ_ERROR", Message: err.Error()},
+			})
+			os.Exit(3)
+		}
+
+		var js interface{}
+		if err := json.Unmarshal(data, &js); err != nil {
+			writeJSON(Response{
+				OK:    false,
+				Error: &Error{Code: "PARSE_ERROR", Message: "Invalid JSON: " + err.Error()},
+			})
+			os.Exit(6)
+		}
+
+		if *compact {
+			writeJSON(Response{OK: true, Data: js})
+		} else {
+			writeJSON(Response{
+				OK: true,
+				Data: map[string]interface{}{
+					"path": *path,
+					"json": js,
 				},
 			})
 		}
