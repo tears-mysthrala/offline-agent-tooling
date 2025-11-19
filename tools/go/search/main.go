@@ -136,7 +136,7 @@ func main() {
 
 		matches := []Match{}
 
-		err = filepath.Walk(*root, func(path string, info os.FileInfo, err error) error {
+		err = filepath.WalkDir(*root, func(path string, d os.DirEntry, err error) error {
 			if err != nil {
 				return nil
 			}
@@ -145,7 +145,7 @@ func main() {
 				return filepath.SkipDir
 			}
 
-			if info.IsDir() {
+			if d.IsDir() {
 				if path != *root && !*recursive {
 					return filepath.SkipDir
 				}
@@ -160,21 +160,25 @@ func main() {
 			}
 
 			if *include != "" {
-				matched, _ := filepath.Match(*include, info.Name())
+				matched, _ := filepath.Match(*include, d.Name())
 				if !matched {
 					return nil
 				}
 			}
 
-			// Read file
-			content, err := os.ReadFile(path)
+			// Read file line by line using scanner
+			file, err := os.Open(path)
 			if err != nil {
 				return nil
 			}
+			// Manual close for performance in hot loop
+			// defer file.Close()
 
-			lines := strings.Split(string(content), "\n")
-			for i, line := range lines {
-				line = strings.TrimSpace(line)
+			scanner := bufio.NewScanner(file)
+			lineNum := 0
+			for scanner.Scan() {
+				lineNum++
+				line := strings.TrimSpace(scanner.Text())
 				found := false
 				if *isRegex {
 					found = re.MatchString(line)
@@ -185,14 +189,16 @@ func main() {
 				if found {
 					matches = append(matches, Match{
 						File: path,
-						Line: i + 1,
+						Line: lineNum,
 						Text: line,
 					})
 					if len(matches) >= *limit {
+						file.Close()
 						return filepath.SkipDir
 					}
 				}
 			}
+			file.Close()
 
 			return nil
 		})

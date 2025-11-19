@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -71,7 +70,7 @@ func main() {
 			os.Exit(2)
 		}
 
-		data, err := ioutil.ReadFile(*path)
+		data, err := os.ReadFile(*path)
 		if err != nil {
 			writeJSON(Response{
 				OK:    false,
@@ -102,7 +101,7 @@ func main() {
 			os.Exit(2)
 		}
 
-		if err := ioutil.WriteFile(*path, []byte(*content), 0644); err != nil {
+		if err := os.WriteFile(*path, []byte(*content), 0644); err != nil {
 			writeJSON(Response{
 				OK:    false,
 				Error: &Error{Code: "WRITE_ERROR", Message: err.Error()},
@@ -257,14 +256,14 @@ func main() {
 
 		var files []string
 		if *recursive {
-			filepath.Walk(*path, func(p string, info os.FileInfo, err error) error {
+			filepath.WalkDir(*path, func(p string, d os.DirEntry, err error) error {
 				if err == nil {
 					files = append(files, p)
 				}
 				return nil
 			})
 		} else {
-			entries, _ := ioutil.ReadDir(*path)
+			entries, _ := os.ReadDir(*path)
 			for _, entry := range entries {
 				files = append(files, filepath.Join(*path, entry.Name()))
 			}
@@ -293,15 +292,15 @@ func main() {
 		}
 
 		var files []string
-		filepath.Walk(*path, func(p string, info os.FileInfo, err error) error {
+		filepath.WalkDir(*path, func(p string, d os.DirEntry, err error) error {
 			if err != nil {
 				return nil
 			}
-			matched, _ := filepath.Match(*pattern, info.Name())
+			matched, _ := filepath.Match(*pattern, d.Name())
 			if matched {
 				files = append(files, p)
 			}
-			if !*recursive && info.IsDir() && p != *path {
+			if !*recursive && d.IsDir() && p != *path {
 				return filepath.SkipDir
 			}
 			return nil
@@ -346,7 +345,7 @@ func main() {
 			data = []byte(*content)
 		}
 
-		if err := ioutil.WriteFile(*path, data, 0644); err != nil {
+		if err := os.WriteFile(*path, data, 0644); err != nil {
 			writeJSON(Response{
 				OK:    false,
 				Error: &Error{Code: "WRITE_ERROR", Message: err.Error()},
@@ -365,7 +364,7 @@ func main() {
 			os.Exit(2)
 		}
 
-		data, err := ioutil.ReadFile(*path)
+		data, err := os.ReadFile(*path)
 		if err != nil {
 			writeJSON(Response{
 				OK:    false,
