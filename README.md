@@ -23,21 +23,16 @@ pwsh -File tools/ps/<tool>.ps1 --op <operation> [args...]
 
 ## ⚡ Performance-Optimized Tools
 
-### Go Tools (2-3x Faster)
+### Go Tools (Performance-Optimized)
 | Tool | Speed | Purpose | Example |
 |------|-------|---------|---------|
-| **kv.exe** | 32ms | Key-value store | `./bin/kv.exe --op get --key k --compact` |
-| **cache.exe** | ~28ms | FS cache + TTL | `./bin/cache.exe --op get --key k --compact` |
-| **fs.exe** | ~25ms | File operations | `./bin/fs.exe --op read --path file.txt --compact` |
-
-### Python Tools (Complex Logic)
-| Tool | Speed | Purpose | Example |
-|------|-------|---------|---------|
-| **config.py** | 68ms | Config loader | `python tools/py/config.py --op load --paths config.env --compact` |
-| **cache.py** | 96ms | FS cache (alt) | `python tools/py/cache.py --op get --key k --compact` |
-| **template.py** | 70ms | Templates | `python tools/py/template.py --op render --template "Hi ${name}" --compact` |
-| **archive.py** | 72ms | Zip/unzip | `python tools/py/archive.py --op zip --source dir --dest out.zip --compact` |
-| **http_tool.py** | 75ms | HTTP + offline | `python tools/py/http_tool.py --op get --offline --fixture-key test --compact` |
+| **kv.exe** | 12ms | Key-value store | `./bin/kv.exe --op get --key k --compact` |
+| **cache.exe** | 13ms | FS cache + TTL | `./bin/cache.exe --op get --key k --compact` |
+| **fs.exe** | 13ms | File operations | `./bin/fs.exe --op read --path file.txt --compact` |
+| **config.exe** | 15ms | Config loader | `./bin/config.exe --op load --paths config.env --compact` |
+| **template.exe** | 32ms | Templates | `./bin/template.exe --op render --template "Hi ${name}" --compact` |
+| **archive.exe** | 180ms | Zip/unzip | `./bin/archive.exe --op zip --source dir --dest out.zip --compact` |
+| **http_tool.exe** | 40ms | HTTP + offline | `./bin/http_tool.exe --op get --url https://example.com --compact` |
 
 ### PowerShell Tools (Windows Native)
 | Tool | Speed | Purpose | Example |
@@ -136,11 +131,10 @@ Test Go tools:
 
 ## 🏗️ Hybrid Architecture
 
-**Python**: Complex logic (config, templates, HTTP, archives)  
-**Go**: Performance-critical (KV, cache, filesystem)  
+**Go**: Performance-critical (All core tools)
 **PowerShell**: Windows-specific (git, legacy tools)
 
-This gives us the best of all worlds: Python flexibility + Go speed + Windows integration.
+This gives us maximum performance with native Windows integration.
 
 ## 🔧 Tool Standards
 
@@ -149,7 +143,6 @@ Every tool implements:
 - ✅ `--compact` for minimal output
 - ✅ JSON output: `{"ok": bool, "data": {...}}`
 - ✅ Error codes with descriptive messages
-- ✅ `--trace-id` for request correlation
 - ✅ Proper exit codes (0=success, 1=usage, 2=args, 3=notfound, etc.)
 
 ## 📁 Project Structure
@@ -160,12 +153,10 @@ tools/
     kv/         # Key-value store
     cache/      # Filesystem cache
     fs/         # File operations
-  py/           # Python tools
-    config.py   # Config loader
-    template.py # Template engine
-    http_tool.py# HTTP with offline
-    archive.py  # Zip/unzip
-    cache.py    # Cache (alternative)
+    config/     # Config loader
+    template/   # Template engine
+    http_tool/  # HTTP client
+    archive/    # Archive tool
   ps/           # PowerShell tools
     git.ps1     # Git wrapper
     fs.ps1      # File ops (legacy)
@@ -173,6 +164,10 @@ bin/            # Compiled Go binaries
   kv.exe
   cache.exe
   fs.exe
+  config.exe
+  template.exe
+  http_tool.exe
+  archive.exe
 ```
 
 ## 🤖 For LLM Agents
